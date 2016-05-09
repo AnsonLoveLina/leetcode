@@ -1,5 +1,10 @@
 package cn.sinobest;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.TreeMultimap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +30,32 @@ public class Solution {
      * @return
      */
     public List<Integer> topKFrequent(int[] nums, int k) {
-        List<Integer>[] fNums = new List[nums.length+1];
-        
+        List<Integer> ints = new ArrayList<Integer>();
+        ArrayListMultimap<Integer,Integer> numCountMap = ArrayListMultimap.create();
+        Map<Integer,Integer> numCountSourceMap = Maps.newHashMap();
+//        int maxCounts = 1;
 
-        return null;
+        for (int num:nums){
+            Integer counts = numCountSourceMap.get(Integer.valueOf(num))==null?1:numCountSourceMap.get(Integer.valueOf(num))+1;
+//            maxCounts = Math.max(maxCounts,counts);
+            numCountSourceMap.put(num, counts);
+        }
+
+        for (Map.Entry<Integer,Integer> entry:numCountSourceMap.entrySet()){
+            numCountMap.put(entry.getKey(), entry.getValue());
+        }
+
+        TreeMultimap<Integer, Integer> countNummap = Multimaps.invertFrom(numCountMap, TreeMultimap.<Integer,Integer>create());
+
+        for (Map.Entry<Integer,Integer> entry:countNummap.entries()){
+//            System.out.println("entryKey = " + entry.getKey());
+//            System.out.println("entryValue = " + entry.getValue());
+            if (entry.getKey()>=k){
+                ints.add(entry.getValue());
+            }
+        }
+
+        return ints;
     }
 
     /**
@@ -55,6 +82,7 @@ public class Solution {
      * @return
      */
     public List<Integer> findSubstring(String s, String[] words) {
+
         return null;
     }
 }
