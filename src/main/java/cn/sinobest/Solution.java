@@ -5,10 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.TreeMultimap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zhouyi1 on 2016/5/9 0009.
@@ -24,45 +21,108 @@ public class Solution {
      Given envelopes = [[5,4],[6,4],[6,7],[2,3]], the maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
 
      Subscribe to see which companies asked this question
-     * @param envelopes
-     * @return
      */
+    public int maxEnvelopes1(int[][] envelopes) {
+        if(envelopes == null || envelopes.length == 0
+                || envelopes[0] == null || envelopes[0].length != 2)
+            return 0;
+        Arrays.sort(envelopes, new Comparator<int[]>(){
+            public int compare(int[] arr1, int[] arr2){
+                if(arr1[0] == arr2[0])
+                    return arr2[1] - arr1[1];
+                else
+                    return arr1[0] - arr2[0];
+            }
+        });
+        int dp[] = new int[envelopes.length];
+        int len = 0;
+        for(int[] envelope : envelopes){
+            int index = Arrays.binarySearch(dp, 0, len, envelope[1]);
+            if(index < 0)
+                index = -(index + 1);
+            dp[index] = envelope[1];
+            if(index == len)
+                len++;
+        }
+        return len;
+    }
+
+    class Envelope{
+        int width;
+        int length;
+        int level;
+
+        public Envelope(int width, int length, int level) {
+            this.width = width;
+            this.length = length;
+            this.level = level;
+        }
+    }
+
+    private int level=0;
+
+    private Map<Integer,Set<Envelope>> rootMap = new TreeMap<Integer, Set<Envelope>>(new Comparator<Integer>() {
+        public int compare(Integer o1, Integer o2) {
+            return o1.compareTo(o2);
+        }
+    });
+
     public int maxEnvelopes(int[][] envelopes) {
-        List<Envelopes> envelopesList = new ArrayList<Envelopes>();
-        int level = 0;
+        if(envelopes == null || envelopes.length == 0 || envelopes[0] == null || envelopes[0].length != 2){
+            return 0;
+        }
+        Arrays.sort(envelopes, new Comparator<int[]>(){
+            public int compare(int[] arr1, int[] arr2){
+                if(arr1[0] == arr2[0])
+                    return arr2[1] - arr1[1];
+                else
+                    return arr1[0] - arr2[0];
+            }
+        });
+        Map<Integer,Set<Envelope>> sumMap = new TreeMap<Integer, Set<Envelope>>(new Comparator<Integer>() {
+            public int compare(Integer o1, Integer o2) {
+                return o1.compareTo(o2);
+            }
+        });
         for (int i = 0; i < envelopes.length; i++) {
             if (envelopes[i].length!=2){
-                return 0;
+                continue;
             }
             int width = envelopes[i][0];
             int length = envelopes[i][1];
-            Envelopes envelopes1 = new Envelopes(new int[][]{envelopes[i]},width+length);
-//            if ()
+            if (sumMap.containsKey(width+length)){
+                sumMap.get(width+length).add(new Envelope(width,length,0));
+                rootMap.get(width+length).add(new Envelope(width,length,0));
+            }else {
+                Set<Envelope> set = new HashSet<Envelope>();
+                Set<Envelope> set1 = new HashSet<Envelope>();
+                set.add(new Envelope(width,length,0));
+                set1.add(new Envelope(width,length,0));
+                sumMap.put(width+length, set);
+                rootMap.put(width+length, set1);
+            }
         }
-        return level;
+        for (Map.Entry<Integer,Set<Envelope>> entry:rootMap.entrySet()){
+            for (Envelope root:entry.getValue()){
+                resolveEnvelope(entry.getKey(),root,sumMap);
+            }
+        }
+        return level+1;
     }
 
-    class Envelopes{
-        int [][] widthAndLength;
-        int sum;
-
-        public Envelopes(int[][] widthAndLength, int sum) {
-            this.widthAndLength = widthAndLength;
-            this.sum = sum;
-        }
-
-        public void addWidthAndLength(int[][] widthAndLength){
-
-        }
-
-        @Override
-        public int hashCode() {
-            return sum;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return sum == ((Envelopes)obj).sum;
+    private void resolveEnvelope(Integer sum,Envelope root,Map<Integer,Set<Envelope>> sumMap){
+        for (Map.Entry<Integer,Set<Envelope>> entry:sumMap.entrySet()){
+            if (entry.getKey()>sum){
+                for (Envelope envelope:entry.getValue()){
+                    if (root.width<envelope.width && root.length<envelope.length){
+                        envelope.level = root.level+1;
+                        level = Math.max(envelope.level,level);
+                        rootMap.get(entry.getKey()).remove(envelope);
+                        resolveEnvelope(entry.getKey(),envelope,sumMap);
+                        break;
+                    }
+                }
+            }
         }
     }
 
