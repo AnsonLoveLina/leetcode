@@ -1,5 +1,6 @@
 package cn.sinobest.Solution68;
 
+
 import java.util.*;
 
 /**
@@ -28,18 +29,41 @@ public class Solution68 {
      ]
      */
     public List<String> fullJustify(String[] words, int maxWidth) {
+        List<String> result = new ArrayList<String>();
         String[] groupWords = new String[(maxWidth/2)+1];
         int width = 0;
         for (int i = 0,j=0; i < words.length; i++) {
-            groupWords[j] = words[i];
-            width += words[i].length()+1;
-            if (width>maxWidth){
-                groupWords[j] = null;
-                for (int k = 0; k < j; k++) {
-
+            groupWords[j] = words[i]+" ";
+            if (width + words[i].length()+1>maxWidth){
+                int remainder = (maxWidth - width)%(j-1);
+                int value = (maxWidth-width)/(j-1);
+                for (int k = 0; k < j-1; k++) {
+                    if(remainder!=0 && k==remainder){
+                        groupWords[j] += repeat(" ",value+1);
+                    }else {
+                        groupWords[j] += repeat(" ",value);
+                    }
                 }
+                result.add(Arrays.toString(groupWords));
+                j=0;
+                groupWords[j] = words[i]+" ";
+            }else {
+                width += words[i].length()+1;
+                j++;
             }
         }
-        return null;
+        return result;
+    }
+
+    /*
+    fuck java
+     */
+    private static String repeat(String source, int count) {
+        StringBuilder result;
+        for(result = new StringBuilder(count * source.length()); count > 0; --count) {
+            result.append(source);
+        }
+
+        return result.toString();
     }
 }
