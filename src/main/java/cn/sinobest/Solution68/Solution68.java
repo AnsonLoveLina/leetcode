@@ -30,35 +30,64 @@ public class Solution68 {
      */
     public List<String> fullJustify(String[] words, int maxWidth) {
         List<String> result = new ArrayList<String>();
-        String[] groupWords = new String[(maxWidth/2)+1];
+        String[] groupWords = new String[(maxWidth/2)+2];
         int width = 0;
         for (int i = 0,j=0; i < words.length; i++) {
-            groupWords[j] = words[i]+" ";
-            if (width + words[i].length()+1>maxWidth){
-                int remainder = (maxWidth - width)%(j-1);
-                int value = (maxWidth-width)/(j-1);
-                for (int k = 0; k < j-1; k++) {
-                    if(remainder!=0 && k==remainder){
-                        groupWords[j] += repeat(" ",value+1);
-                    }else {
-                        groupWords[j] += repeat(" ",value);
-                    }
-                }
-                result.add(Arrays.toString(groupWords));
+            groupWords[j] = words[i];
+            width += words[i].length();
+            j++;
+            int length = i==words.length-1?0:words[i+1].length();
+            //Note: Each word is guaranteed not to exceed L in length.
+            if (width+length+j>maxWidth){
+                int remainder = j==1?0:(maxWidth - width)%(j-1);
+                int value = j==1?(maxWidth-width):(maxWidth-width)/(j-1);
+                result.add(getGoodStr(groupWords,remainder,value,j));
                 j=0;
-                groupWords[j] = words[i]+" ";
-            }else {
-                width += words[i].length()+1;
-                j++;
+                width=0;
+//                groupWords[0] = words[i+1];
+            }else if (i==words.length-1){
+                result.add(getLeftStr(groupWords,maxWidth,j));
             }
+
         }
         return result;
+    }
+
+    private String getLeftStr(String[] groupWords, int maxWidth, int j){
+        StringBuilder result = new StringBuilder();
+        for (int k = 0; k < j; k++) {
+            if (k==j-1){
+                int count = maxWidth-result.length()-groupWords[k].length();
+                result.append(groupWords[k]+repeat(" ",count));
+                continue;
+            }
+            result.append(groupWords[k]+" ");
+        }
+        System.out.println(result.toString());
+        return result.toString();
+    }
+
+    private String getGoodStr(String[] groupWords, int remainder, int value, int j){
+        StringBuilder result = new StringBuilder();
+        for (int k = 0; k < j; k++) {
+            if (k==j-1 && k!=0){
+                result.append(groupWords[k]);
+                continue;
+            }
+            if(remainder!=0 && k<remainder){
+                result.append(groupWords[k]+repeat(" ",value+1));
+            }else {
+                result.append(groupWords[k]+repeat(" ",value));
+            }
+        }
+        System.out.println(result.toString());
+        return result.toString();
     }
 
     /*
     fuck java
      */
-    private static String repeat(String source, int count) {
+    private String repeat(String source, int count) {
         StringBuilder result;
         for(result = new StringBuilder(count * source.length()); count > 0; --count) {
             result.append(source);

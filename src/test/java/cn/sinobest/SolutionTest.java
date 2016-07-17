@@ -2,6 +2,8 @@ package cn.sinobest;
 
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class SolutionTest {
@@ -44,5 +46,19 @@ public class SolutionTest {
         for (int i = 0; i < array.length; i++) {
             System.out.println(array[i].getBytes()[0]);
         }
+    }
+
+    @Test
+    public void testIntToRoman(){
+        SolutionMockIntegerToRoman solution = new SolutionMockIntegerToRoman();
+        String res = solution.intToRoman(9);
+        System.out.println("res = " + res);
+    }
+
+    @Test
+    public void test2(){
+        LinkedList list = new LinkedList();
+        Object object = list.getFirst();
+        System.out.println("object = " + object);
     }
 }
